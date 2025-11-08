@@ -1,12 +1,3 @@
-# Digitalkin
-Tehnical test for DigitalKin
-
-## Notes
-
-### Stockage des données avec SurrealDB
-Je stock mon propre id en type string pour les agents car le type de l'id de surrealdb n'etait pas compatible avec le type uuid de zod.
-
-
 # 🧠 Digitalkin Backend API — Test Technique
 
 Backend Node.js développé pour le test technique **Digitalkin**, permettant la gestion d’agents virtuels et la simulation de conversations interactives entre utilisateurs et agents.
@@ -137,7 +128,6 @@ npm test
 
 Les tests couvrent :
 - CRUD agents
-- Update agents
 - Conversations `echo`
 - Conversations `keyword`
 
@@ -185,7 +175,6 @@ curl -X POST http://localhost:3000/conversations/<conversationId>/messages   -H 
 
 | Domaine | Amélioration |
 |----------|---------------|
-| Persistance | Utiliser Prisma + PostgreSQL |
 | Authentification | JWT ou OAuth2 |
 | Tests | Mock SurrealDB et coverage >90% |
 | Monitoring | Ajout de pino |
@@ -193,6 +182,7 @@ curl -X POST http://localhost:3000/conversations/<conversationId>/messages   -H 
 
 ---
 
-## 🧾 Auteur
+## Notes
 
-Projet réalisé par **Guillaume**, dans le cadre du test technique **Digitalkin (Backend Node.js)** — Novembre 2025.
+### Stockage des données avec SurrealDB
+Je stock mon propre id en type string pour les agents car le type de l'id de surrealdb n'etait pas compatible avec le type uuid de zod.
