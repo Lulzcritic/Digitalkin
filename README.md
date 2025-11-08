@@ -38,7 +38,7 @@ Backend Node.js développé pour le test technique **Digitalkin**, permettant la
 | Domaine | Choix | Raison |
 |----------|--------|--------|
 | Langage | TypeScript | Typage strict, meilleure lisibilité |
-| Framework | Express (ou Fastify optionnel) | Simplicité + rapidité d’implémentation |
+| Framework | Express | Simplicité + rapidité d’implémentation |
 | Validation | Zod | Validation sûre et explicite |
 | Tests | Jest + Supertest | API testable de bout en bout |
 | Base de données | SurrealDB (ou mémoire) | Flexible et légère |
@@ -186,3 +186,5 @@ curl -X POST http://localhost:3000/conversations/<conversationId>/messages   -H 
 
 ### Stockage des données avec SurrealDB
 Je stock mon propre id en type string pour les agents car le type de l'id de surrealdb n'etait pas compatible avec le type uuid de zod.
+
+Seule la logique d'implementation de surrealDB est la, les tests sont faits avec des données en mémoire.
