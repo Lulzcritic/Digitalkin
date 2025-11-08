@@ -1,30 +1,381 @@
 openapi: 3.0.3
 info:
   title: Agentic API
-  version: 1.0.0
+  version: "1.0.0"
+  description: |
+    API REST pour gérer des agents virtuels et simuler des conversations basiques.
+
+    ## Notes
+    - Les conversations stockent tous les messages (user/agent).
+    - La logique de réponse de l’agent est définie par `mode`:
+      - `echo`: répète le message utilisateur.
+      - `keyword`: répond selon un dictionnaire de mots-clés.
 servers:
   - url: http://localhost:3000
+    description: Local
+
+tags:
+  - name: Health
+  - name: Agents
+  - name: Conversations
+
 paths:
   /agents:
     get:
-      summary: List agents
-      responses: { "200": { description: OK } }
+      tags: [Agents]
+      summary: Lister les agents
+      responses:
+        "200":
+          description: Liste des agents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Agent"
     post:
-      summary: Create agent
-      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
-      responses: { "201": { description: Created } }
+      tags: [Agents]
+      summary: Créer un nouvel agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentCreate"
+            examples:
+              keyword:
+                summary: Agent mots-clés
+                value:
+                  name: "Ava"
+                  strategy: "keyword"
+                  keywords:
+                    bonjour: "Salut !"
+                    prix: "À partir de 99€"
+              echo:
+                summary: Agent écho
+                value:
+                  name: "Echo"
+                  strategy: "echo"
+              canned:
+                summary: Agent réponses prédéfinies
+                value:
+                  name: "Zoé"
+                  strategy: "canned"
+                  cannedReplies: ["OK.", "Bien reçu.", "Compris."]
+      responses:
+        "201":
+          description: Agent créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
   /agents/{id}:
-    get: { summary: Get agent, parameters: [{ in: path, name: id, required: true, schema: { type: string } }], responses: { "200": { description: OK }, "404": { description: Not found } } }
-    put: { summary: Update agent, parameters: [{ in: path, name: id, required: true, schema: { type: string } }], requestBody: { content: { application/json: { schema: { type: object } } } }, responses: { "200": { description: OK } } }
-    delete: { summary: Delete agent, parameters: [{ in: path, name: id, required: true, schema: { type: string } }], responses: { "204": { description: No Content } } }
+    get:
+      tags: [Agents]
+      summary: Récupérer un agent
+      parameters:
+        - $ref: "#/components/parameters/AgentId"
+      responses:
+        "200":
+          description: Agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Agents]
+      summary: Mettre à jour un agent
+      parameters:
+        - $ref: "#/components/parameters/AgentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentUpdate"
+            examples:
+              changeStrategy:
+                value:
+                  strategy: "keyword"
+                  keywords:
+                    hello: "Hi!"
+      responses:
+        "200":
+          description: Agent mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Agents]
+      summary: Supprimer un agent
+      parameters:
+        - $ref: "#/components/parameters/AgentId"
+      responses:
+        "204":
+          description: Supprimé
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /conversations:
     post:
-      summary: Start a conversation
-      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
-      responses: { "201": { description: Created } }
+      tags: [Conversations]
+      summary: Démarrer une conversation avec un agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartConversationRequest"
+            examples:
+              start:
+                value:
+                  agentId: "e3d7f0b8-8a44-4b91-9b49-3a9f4d37e111"
+                  message: "bonjour"
+      responses:
+        "201":
+          description: Conversation créée + première réponse de l’agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartConversationResponse"
+              examples:
+                ok:
+                  value:
+                    conversationId: "b1c9a2a1-5e5e-4c1b-a6ce-b2f4d6e7a001"
+                    agentReply: "Salut !"
+                    messages:
+                      - id: "m1"
+                        role: "user"
+                        content: "bonjour"
+                        timestamp: "2025-11-08T12:00:00.000Z"
+                      - id: "m2"
+                        role: "agent"
+                        content: "Salut !"
+                        timestamp: "2025-11-08T12:00:00.100Z"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /conversations/{id}/messages:
     post:
-      summary: Send a message
-      parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
-      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
-      responses: { "201": { description: Created } }
+      tags: [Conversations]
+      summary: Envoyer un message dans une conversation existante
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageRequest"
+            examples:
+              msg:
+                value:
+                  message: "Peux-tu m'aider ?"
+      responses:
+        "200":
+          description: Réponse de l’agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendMessageResponse"
+              examples:
+                ok:
+                  value:
+                    agentReply: "Bien sûr, dis-m'en plus."
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  parameters:
+    AgentId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+      description: Identifiant de l’agent
+    ConversationId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+      description: Identifiant de la conversation
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            bad:
+              value: { error: "Bad Request", details: "Missing field: name" }
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          examples:
+            nf:
+              value: { error: "Not Found", details: "Agent not found" }
+
+  schemas:
+    Agent:
+      type: object
+      required: [id, name, strategy]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        strategy:
+          type: string
+          enum: [echo, keyword, canned]
+        keywords:
+          type: object
+          additionalProperties:
+            type: string
+          description: Dictionnaire mot-clé → réponse (pour strategy=keyword)
+
+    AgentCreate:
+      type: object
+      required: [name, strategy]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        strategy:
+          type: string
+          enum: [echo, keyword, canned]
+        keywords:
+          type: object
+          additionalProperties:
+            type: string
+
+    AgentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        strategy:
+          type: string
+          enum: [echo, keyword, canned]
+        keywords:
+          type: object
+          additionalProperties:
+            type: string
+
+    Message:
+      type: object
+      required: [id, role, content, timestamp]
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum: [user, agent]
+        content:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Conversation:
+      type: object
+      required: [id, agentId, createdAt, messages]
+      properties:
+        id:
+          type: string
+          format: uuid
+        agentId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+
+    StartConversationRequest:
+      type: object
+      required: [agentId, message]
+      properties:
+        agentId:
+          type: string
+          format: uuid
+        message:
+          type: string
+          minLength: 1
+
+    StartConversationResponse:
+      type: object
+      required: [conversationId, agentReply, messages]
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        agentReply:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+
+    SendMessageRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 1
+
+    SendMessageResponse:
+      type: object
+      required: [agentReply]
+      properties:
+        agentReply:
+          type: string
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "Bad Request"
+        details:
+          type: string
+          example: "Missing field: name"
+
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+security:
+  - ApiKey: []

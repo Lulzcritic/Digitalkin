@@ -1,0 +1,8 @@
+services:
+  surreal:
+    image: surrealdb/surrealdb:latest
+    command: start --log debug --user root --pass root memory
+    environment:
+      SURREAL_USER: root
+      SURREAL_PASS: root
+    ports: ["8000:8000"]
