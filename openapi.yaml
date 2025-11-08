@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: Agentic API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /agents:
+    get:
+      summary: List agents
+      responses: { "200": { description: OK } }
+    post:
+      summary: Create agent
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses: { "201": { description: Created } }
+  /agents/{id}:
+    get: { summary: Get agent, parameters: [{ in: path, name: id, required: true, schema: { type: string } }], responses: { "200": { description: OK }, "404": { description: Not found } } }
+    put: { summary: Update agent, parameters: [{ in: path, name: id, required: true, schema: { type: string } }], requestBody: { content: { application/json: { schema: { type: object } } } }, responses: { "200": { description: OK } } }
+    delete: { summary: Delete agent, parameters: [{ in: path, name: id, required: true, schema: { type: string } }], responses: { "204": { description: No Content } } }
+  /conversations:
+    post:
+      summary: Start a conversation
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses: { "201": { description: Created } }
+  /conversations/{id}/messages:
+    post:
+      summary: Send a message
+      parameters: [{ in: path, name: id, required: true, schema: { type: string } }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object } } } }
+      responses: { "201": { description: Created } }
