@@ -54,6 +54,5 @@ export function createApp(store?: StorageAdapter) {
   return app;
 }
 
-// Export par défaut pour le runtime actuel (compat avec ton server.ts)
 const app = createApp();
 export default app;

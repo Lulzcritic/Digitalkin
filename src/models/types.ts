@@ -6,7 +6,8 @@ export type Agent = {
     rules?: {
       keywords?: Record<string, string>;
       fallback?: string;
-      mode?: "echo" | "keyword";
+      canned?: string[];
+      mode?: "echo" | "keyword" | "canned";
     };
     createdAt: string;
     updatedAt: string;
