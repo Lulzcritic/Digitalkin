@@ -7,7 +7,8 @@ export const AgentCreateSchema = z.object({
   rules: z.object({
     keywords: z.record(z.string(), z.array(z.string().min(1))).optional(),
     fallback: z.string().optional(),
-    mode: z.enum(["echo", "keyword"]).optional()
+    canned: z.array(z.string().min(1)).optional(),
+    mode: z.enum(["echo", "keyword", "canned"]).optional()
   }).optional()
 });
 
