@@ -10,6 +10,7 @@ info:
     - La logique de réponse de l’agent est définie par `mode`:
       - `echo`: répète le message utilisateur.
       - `keyword`: répond selon un dictionnaire de mots-clés.
+      - `canned`: répond parmi une liste de réponses prédéfinies.
 servers:
   - url: http://localhost:3000
     description: Local
@@ -49,8 +50,8 @@ paths:
                   name: "Ava"
                   strategy: "keyword"
                   keywords:
-                    bonjour: "Salut !"
-                    prix: "À partir de 99€"
+                    bonjour: ["Salut !", "Bonjour !"]
+                    prix: ["À partir de 99€", "99 euros"]
               echo:
                 summary: Agent écho
                 value:
@@ -103,7 +104,7 @@ paths:
                 value:
                   strategy: "keyword"
                   keywords:
-                    hello: "Hi!"
+                    hello: ["Hi!", "Hello!"]
       responses:
         "200":
           description: Agent mis à jour

@@ -130,6 +130,7 @@ Les tests couvrent :
 - CRUD agents
 - Conversations `echo`
 - Conversations `keyword`
+- Conversations `canned`
 
 ---
 
@@ -176,7 +177,7 @@ curl -X POST http://localhost:3000/conversations/<conversationId>/messages   -H 
 | Domaine | Amélioration |
 |----------|---------------|
 | Authentification | JWT ou OAuth2 |
-| Tests | Mock SurrealDB et coverage >90% |
+| Tests | requetes surrealDB |
 | Monitoring | Ajout de pino |
 | IA | Remplacer les règles statiques par un LLM via API |
 
